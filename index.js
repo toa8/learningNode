@@ -1,6 +1,7 @@
 // Package imports
 const fs = require("fs");
 const http = require("http");
+const url = require("url");
 
 // ------------------------------
 // -- FILE READ AND WRITE
@@ -36,7 +37,21 @@ const http = require("http");
 // -- SERVER
 
 const server = http.createServer((req, res) => {
-  res.end("Hello from the server!");
+  console.log(req.url); // this is how we get url user entered...
+
+  const pathName = req.url;
+
+  if (pathName === "/" || pathName === "/overview") {
+    res.end("This is OVERVIEW PAGE!");
+  } else if (pathName === "/product") {
+    res.end("This is PRODUCT PAGE!");
+  } else {
+    res.writeHead(404, {
+      "Content-type": "text-html",
+      "my-own-header": "hello this is my own message!",
+    });
+    res.end("<h1>Page Not FOUND!</h1>");
+  }
 });
 
 const port = 8000;
