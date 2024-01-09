@@ -70,19 +70,30 @@ const replaceTemplate = (temp, product) => {
 
 const server = http.createServer((req, res) => {
   //  console.log(req.url); // this is how we get url user entered...
-  const pathName = req.url;
 
-  if (pathName === "/" || pathName === "/overview") {
+  const { query, pathname } = url.parse(req.url, true);
+
+  // Overview Page
+  if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, { "Content-type": "text/html" });
     const cardsHtml = productDataObj.map((el) => replaceTemplate(tempCard, el));
     const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
     res.end(output);
-  } else if (pathName === "/product") {
-    res.end("This is PRODUCT PAGE!");
-  } else if (pathName === "/api") {
+  }
+  // Product Page
+  else if (pathname === "/product") {
+    res.writeHead(200, { "Content-type": "text/html" });
+    const product = productDataObj[query.id];
+    const output = replaceTemplate(tempProduct, product);
+    res.end(output);
+  }
+  // API
+  else if (pathname === "/api") {
     res.writeHead(200, { "Content-type": "application/json" });
     res.end(productData);
-  } else {
+  }
+  // Not Found Page
+  else {
     res.writeHead(404, {
       "Content-type": "text-html",
       "my-own-header": "hello this is my own message!",
