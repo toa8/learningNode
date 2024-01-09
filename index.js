@@ -36,16 +36,47 @@ const url = require("url");
 // -------------------------------
 // -- SERVER
 
+const tempOverview = fs.readFileSync(
+  `${__dirname}/templates/template-overview.html`,
+  "utf-8"
+);
+const tempCard = fs.readFileSync(
+  `${__dirname}/templates/template-card.html`,
+  "utf8"
+);
+const tempProduct = fs.readFileSync(
+  `${__dirname}/templates/template-product.html`,
+  "utf-8"
+);
+
 const productData = fs.readFileSync(`${__dirname}/devData/data.json`, "utf-8");
 const productDataObj = JSON.parse(productData);
 
-const server = http.createServer((req, res) => {
-  console.log(req.url); // this is how we get url user entered...
+const replaceTemplate = (temp, product) => {
+  let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
+  output = output.replace(/{%IMAGE%}/g, product.image);
+  output = output.replace(/{%PRICE%}/g, product.price);
+  output = output.replace(/{%FROM%}/g, product.from);
+  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  output = output.replace(/{%QUANTITY%}/g, product.quantity);
+  output = output.replace(/{%DESCRIPTION%}/g, product.description);
+  output = output.replace(/{%ID%}/g, product.id);
 
+  if (!product.organic)
+    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
+
+  return output;
+};
+
+const server = http.createServer((req, res) => {
+  //  console.log(req.url); // this is how we get url user entered...
   const pathName = req.url;
 
   if (pathName === "/" || pathName === "/overview") {
-    res.end("This is OVERVIEW PAGE!");
+    res.writeHead(200, { "Content-type": "text/html" });
+    const cardsHtml = productDataObj.map((el) => replaceTemplate(tempCard, el));
+    const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
+    res.end(output);
   } else if (pathName === "/product") {
     res.end("This is PRODUCT PAGE!");
   } else if (pathName === "/api") {
