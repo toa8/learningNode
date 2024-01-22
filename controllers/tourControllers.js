@@ -17,6 +17,17 @@ exports.checkID = (req, res, next, val) => {
   next();
 };
 
+// Check if post req.body exist and properties which we want required is valid.
+exports.checkBody = (req, res, next) => {
+  if (!req.body || !req.body.name || !req.body.price) {
+    res.status(400).json({
+      status: "fail",
+      message: "Invalid req.body or missing name or price properties...",
+    });
+  }
+  next();
+};
+
 // Route Handlers
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
